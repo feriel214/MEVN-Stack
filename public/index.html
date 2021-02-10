@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material/dist/theme/default.css">
+  </head>
+
+  <body>
+    <div id="app">
+        <md-toolbar class="md-primary md-raised">
+            Admin Panel
+        </md-toolbar>
+        <md-card>
+            <md-card-content>
+                <input v-model="id" type="hidden">
+                <md-field>
+                    <md-input v-model="name" placeholder="Name"></md-input>
+                </md-field>
+                <md-field>
+                    <md-input v-model="email" placeholder="Email"></md-input>
+                </md-field>
+                <md-field>
+                    <md-input v-model="password" placeholder="Password"></md-input>
+                </md-field>
+                <md-button @click="postUser" class="md-primary md-raised">Save</md-button>
+            </md-card-content>
+        </md-card>
+        <md-table class="md-card">
+            <md-table-row>
+              <md-table-head >Name</md-table-head>
+              <md-table-head>Email</md-table-head>
+              <md-table-head>Password</md-table-head>
+              <md-table-head>Edit</md-table-head>
+              <md-table-head>Delete</md-table-head>
+            </md-table-row>
+      
+           
+      
+            <md-table-row v-for="user in users">
+              <md-table-cell>{{user.name}}</md-table-cell>
+              <md-table-cell>{{user.email}}</md-table-cell>
+              <md-table-cell>{{user.password}}</md-table-cell>
+              <md-table-cell>
+                  <md-button @click="getOne(user)" class="md-primary md-raised">Edit</md-button>
+              </md-table-cell>
+              <md-table-cell>
+                <md-button @click="deleteOne(user._id)" class="md-primary md-raised">Delete</md-button>
+            </md-table-cell>
+            </md-table-row>
+          </md-table>
+    </div>
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.1/axios.js"></script>
+    <script>
+      Vue.use(VueMaterial.default)
+
+      new Vue({
+        el: '#app',
+        name:'Mahesh',
+        data:()=>({
+            users:[],
+            id:0,
+            name:'',
+            email:'',
+            password:'',
+            url:'http://localhost/api'
+        }),
+        async created(){
+            this.getAll()
+        },
+        methods:{
+            async getAll(){
+                const res = await axios.get(this.url);
+                this.users = res.data;
+                id=0;
+                name='';
+                email='';
+                password=''
+            },
+            async getOne(user){
+                this.id = user._id;
+                this.name = user.name;
+                this.email = user.email;
+                this.password = user.password;
+            },
+            async postUser(){
+                if(this.id == 0){
+                    await axios.post(this.url,{name:this.name,email:this.email,password:this.password})
+                    this.getAll();
+                }else{
+                    await axios.put(`${this.url}/${this.id}`,{name:this.name,email:this.email,password:this.password})
+                    this.getAll();
+                }
+            },
+            async deleteOne(id){
+                await axios.delete(`${this.url}/${id}`)
+                this.getAll();
+            }
+        }
+      })
+    </script>
+    <style>
+        @media screen and (max-width: 1440px){
+            .md-card{
+                width:50vw;
+                float: left;
+            }
+        }
+        @media screen and (max-width: 720px){
+            .md-card{
+                width:100vw;
+                float: left;
+            }
+        }
+    </style>
+  </body>
+</html>
